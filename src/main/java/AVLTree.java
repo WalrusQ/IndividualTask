@@ -1,6 +1,6 @@
 import java.util.NoSuchElementException;
 
-public class AVLTree<Key extends Comparable<Key>, Value>{
+public class AVLTree<Key extends Comparable<Key>, Value> {
 
 
 
@@ -69,7 +69,6 @@ public class AVLTree<Key extends Comparable<Key>, Value>{
 
 
     public void put(Key key, Value val) {
-        if (key == null) throw new IllegalArgumentException();
         if (val == null) {
             delete(key);
             return;
