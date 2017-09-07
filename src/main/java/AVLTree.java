@@ -1,10 +1,122 @@
-import java.util.NoSuchElementException;
+import java.util.*;
 
-public class AVLTree<Key extends Comparable<Key>, Value> {
+public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Key, Value> {
 
 
+    @Override
+    public Comparator<? super Key> comparator() {
+        return null;
+    }
 
-     private class Node {
+
+    @Override
+    public SortedMap<Key, Value> subMap(Key fromKey, Key toKey) {
+        SortedMap<Key, Value> sMap = new TreeMap<Key, Value>();
+        subMap(root, fromKey, toKey, sMap);
+        return sMap;
+    }
+
+    private void subMap(Node x, Key fromKey, Key toKey, SortedMap<Key, Value> sMap){
+
+        if(x == null) return;
+        int cmp = fromKey.compareTo(x.key);
+        if( cmp < 0) subMap(x.left, fromKey, toKey, sMap);
+        else if (cmp > 0) subMap(x.right, fromKey, toKey, sMap);
+        sMap.put(x.key, x.val);
+        cmp = toKey.compareTo(x.key);
+        if (cmp > 0) {
+            sMap.put(x.key, x.val);
+            headMap(x.right, toKey, sMap);
+        }
+
+    }
+
+    @Override
+    public SortedMap<Key, Value> headMap(Key toKey) {
+
+        SortedMap<Key, Value> hMap = new TreeMap<Key, Value>();
+        headMap(root, toKey, hMap);
+        return hMap;
+    }
+    private void headMap(Node x, Key toKey, SortedMap<Key, Value> hMap){
+
+        if(x == null) return;
+        headMap(x.left, toKey, hMap);
+        int cmp = toKey.compareTo(x.key);
+        if (cmp > 0) {
+            hMap.put(x.key, x.val);
+            headMap(x.right, toKey, hMap);
+        }
+
+    }
+
+    @Override
+    public SortedMap<Key, Value> tailMap(Key fromKey) {
+        SortedMap<Key, Value> tMap = new TreeMap<Key, Value>();
+        tailMap(root, fromKey, tMap);
+        return tMap;
+    }
+
+    private void tailMap(Node x, Key fromKey, SortedMap<Key, Value> tMap){
+
+        if(x == null) return;
+        int cmp = fromKey.compareTo(x.key);
+        if (cmp < 0)  tailMap(x.left, fromKey, tMap);
+       if (cmp > 0) tailMap(x.right, fromKey, tMap);
+
+        if (cmp > 0) {
+            tMap.put(x.key, x.val);
+            tailMap(x.right, fromKey, tMap);
+        }
+
+    }
+
+    @Override
+    public Key firstKey() {
+        if (isEmpty()) throw new NoSuchElementException();
+        return min(root).key;
+    }
+
+    @Override
+    public Key lastKey() {
+        if (isEmpty()) throw new NoSuchElementException();
+        return max(root).key;
+    }
+
+    @Override
+    public Set<Key> keySet() {
+        Set<Key> keys = new HashSet<>();
+        keySet(root, keys);
+        return keys;
+    }
+
+    private void keySet(Node x, Set<Key> keys) {
+        if (x == null) return;
+        keySet(x.left, keys);
+        keys.add(x.key);
+        keySet(x.right, keys);
+    }
+
+    @Override
+    public Collection<Value> values() {
+        Collection<Value> values = new HashSet<>();
+        valueSet(root, values);
+        return values;
+    }
+
+    private void valueSet(Node x, Collection<Value> values) {
+        if (x == null) return;
+        valueSet(x.left, values);
+        values.add(x.val);
+        valueSet(x.right, values);
+    }
+
+    @Override
+    public Set<Entry<Key, Value>> entrySet() {
+        return null;
+    }
+
+    private class Node {
         private final Key key;
         private Value val;
         private int height;
@@ -23,8 +135,27 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
     private Node root;
 
 
-     public boolean isEmpty() {
+    public boolean isEmpty() {
         return root == null;
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return get(key) != null;
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        Collection<Value> values = values();
+        return values.contains(value);
+    }
+
+    @Override
+    public Value get(Object key) {
+        if (key == null) throw new IllegalArgumentException();
+        Node x = get(root, (Key) key);
+        if (x == null) return null;
+        return x.val;
     }
 
     public int size() {
@@ -46,14 +177,6 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
         return x.height;
     }
 
-
-    public Value get(Key key) {
-        if (key == null) throw new IllegalArgumentException();
-        Node x = get(root, key);
-        if (x == null) return null;
-        return x.val;
-    }
-
     private Node get(Node x, Key key) {
         if (x == null) return null;
         int cmp = key.compareTo(x.key);
@@ -63,17 +186,33 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
     }
 
 
-    public boolean contains(Key key) {
-        return get(key) != null;
+    public Value put(Key key, Value val) {
+        if (val == null || key == null) throw new NullPointerException();
+        root = put(root, key, val);
+        return val;
+
     }
 
+    @Override
+    public Value remove(Object key) {
 
-    public void put(Key key, Value val) {
-        if (val == null) {
-            delete(key);
-            return;
-        }
-        root = put(root, key, val);
+        if (key == null) throw new IllegalArgumentException();
+        if (!containsKey(key)) throw new NullPointerException();
+        Value val = get(key);
+        root = delete(root, (Key) key);
+        return val;
+    }
+
+    @Override
+    public void putAll(Map<? extends Key, ? extends Value> m) {
+    for(Map.Entry<? extends Key, ? extends Value> entry : m.entrySet())
+        put(entry.getKey(), entry.getValue());
+
+    }
+
+    @Override
+    public void clear() {
+// no thanks
     }
 
     private Node put(Node x, Key key, Value val) {
@@ -81,11 +220,9 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
         int cmp = key.compareTo(x.key);
         if (cmp < 0) {
             x.left = put(x.left, key, val);
-        }
-        else if (cmp > 0) {
+        } else if (cmp > 0) {
             x.right = put(x.right, key, val);
-        }
-        else {
+        } else {
             x.val = val;
             return x;
         }
@@ -101,8 +238,7 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
                 x.right = rotateRight(x.right);
             }
             x = rotateLeft(x);
-        }
-        else if (balanceFactor(x) > 1) {
+        } else if (balanceFactor(x) > 1) {
             if (balanceFactor(x.left) < 0) {
                 x.left = rotateLeft(x.left);
             }
@@ -138,28 +274,19 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
         return y;
     }
 
-    public void delete(Key key) {
-        if (key == null) throw new IllegalArgumentException();
-        if (!contains(key)) return;
-        root = delete(root, key);
-    }
 
     private Node delete(Node x, Key key) {
         int cmp = key.compareTo(x.key);
         if (cmp < 0) {
             x.left = delete(x.left, key);
-        }
-        else if (cmp > 0) {
+        } else if (cmp > 0) {
             x.right = delete(x.right, key);
-        }
-        else {
+        } else {
             if (x.left == null) {
                 return x.right;
-            }
-            else if (x.right == null) {
+            } else if (x.right == null) {
                 return x.left;
-            }
-            else {
+            } else {
                 Node y = x;
                 x = min(y.right);
                 x.right = deleteMin(y.right);
@@ -200,23 +327,11 @@ public class AVLTree<Key extends Comparable<Key>, Value> {
         return balance(x);
     }
 
-
-    public Key min() {
-        if (isEmpty()) throw new NoSuchElementException();
-        return min(root).key;
-    }
-
-
     private Node min(Node x) {
         if (x.left == null) return x;
         return min(x.left);
     }
 
-
-    public Key max() {
-        if (isEmpty()) throw new NoSuchElementException();
-        return max(root).key;
-    }
 
     private Node max(Node x) {
         if (x.right == null) return x;

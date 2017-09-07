@@ -17,32 +17,37 @@ public class AVLTreeTest {
 
         assertFalse(st.isEmpty());
 
-        assertTrue(st.contains(15));
-        assertTrue(st.contains(10));
-        assertTrue(st.contains(11));
-        assertTrue(st.contains(8));
-        assertTrue(st.contains(16));
-        assertTrue(st.contains(20));
+        assertTrue(st.containsKey(15));
+        assertTrue(st.containsKey(10));
+        assertTrue(st.containsKey(11));
+        assertTrue(st.containsKey(8));
+        assertTrue(st.containsKey(16));
+        assertTrue(st.containsKey(20));
 
         assertEquals((int)st.get(11), 200);
 
         assertTrue(st.size() == 6);
-        st.delete(10);
+        st.remove(10);
 
-        assertTrue(st.contains(15));
-        assertFalse(st.contains(10));
-        assertTrue(st.contains(11));
-        assertTrue(st.contains(8));
-        assertTrue(st.contains(16));
-        assertTrue(st.contains(20));
+        assertTrue(st.containsKey(15));
+        assertFalse(st.containsKey(10));
+        assertTrue(st.containsKey(11));
+        assertTrue(st.containsKey(8));
+        assertTrue(st.containsKey(16));
+        assertTrue(st.containsKey(20));
 
         assertTrue(st.size() == 5);
 
         st.deleteMax();
-        assertFalse(st.contains(20));
+        assertFalse(st.containsKey(20));
 
         st.deleteMin();
-        assertFalse(st.contains(8));
+        assertFalse(st.containsKey(8));
+
+        assertTrue(st.containsValue(200));
+
+        assertEquals((int)st.size(), 3);
+
     }
 
 }
