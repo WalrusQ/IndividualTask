@@ -1,5 +1,7 @@
 import org.junit.Test;
 
+import java.util.*;
+
 import static org.junit.Assert.*;
 
 public class AVLTreeTest {
@@ -48,6 +50,37 @@ public class AVLTreeTest {
 
         assertEquals((int)st.size(), 3);
 
+        assertTrue(st.keySet().contains(11));
+        assertTrue(st.keySet().contains(15));
+        assertTrue(st.keySet().contains(16));
+        assertEquals(st.keySet().size(), 3);
+
+
+        assertTrue(st.values().contains(200));
+        assertTrue(st.values().contains(500));
+        assertTrue(st.values().contains(600));
+        assertEquals(st.values().size(), 3);
+
+        assertTrue(st.headMap(16).containsKey(11));
+        assertTrue(st.headMap(16).containsKey(15));
+        assertEquals(st.headMap(16).size(), 2);
+
+        assertEquals(st.tailMap(10).size(), 3);
+        assertEquals(st.tailMap(12).size(), 2);
+
+
+        assertEquals(st.subMap(11, 16).size(), 2);
+        assertEquals(st.subMap(11, 17).size(), 3);
+
+        Map testMap= new HashMap<Integer, Integer>();
+        testMap.put(1, 50);
+        testMap.put(2, 70);
+        st.putAll(testMap);
+        assertTrue(st.containsKey(1));
+        assertTrue(st.containsKey(2));
+
+        }
+
+
     }
 
-}

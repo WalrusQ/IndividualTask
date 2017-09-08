@@ -19,16 +19,12 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
     private void subMap(Node x, Key fromKey, Key toKey, SortedMap<Key, Value> sMap){
 
         if(x == null) return;
-        int cmp = fromKey.compareTo(x.key);
-        if( cmp < 0) subMap(x.left, fromKey, toKey, sMap);
-        else if (cmp > 0) subMap(x.right, fromKey, toKey, sMap);
-        sMap.put(x.key, x.val);
-        cmp = toKey.compareTo(x.key);
-        if (cmp > 0) {
-            sMap.put(x.key, x.val);
-            headMap(x.right, toKey, sMap);
-        }
-
+        int cmpFrom, cmpTo;
+        subMap(x.left, fromKey, toKey, sMap);
+        cmpFrom = fromKey.compareTo(x.key);
+        cmpTo = toKey.compareTo(x.key);
+        if( cmpFrom <= 0 && cmpTo > 0) sMap.put(x.key, x.val);
+        subMap(x.right, fromKey, toKey, sMap);
     }
 
     @Override
@@ -41,12 +37,11 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
     private void headMap(Node x, Key toKey, SortedMap<Key, Value> hMap){
 
         if(x == null) return;
+        int cmpTo = toKey.compareTo(x.key);;
         headMap(x.left, toKey, hMap);
-        int cmp = toKey.compareTo(x.key);
-        if (cmp > 0) {
-            hMap.put(x.key, x.val);
-            headMap(x.right, toKey, hMap);
-        }
+
+        if( cmpTo > 0) hMap.put(x.key, x.val);
+        headMap(x.right, toKey, hMap);
 
     }
 
@@ -60,14 +55,11 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
     private void tailMap(Node x, Key fromKey, SortedMap<Key, Value> tMap){
 
         if(x == null) return;
-        int cmp = fromKey.compareTo(x.key);
-        if (cmp < 0)  tailMap(x.left, fromKey, tMap);
-       if (cmp > 0) tailMap(x.right, fromKey, tMap);
+        int cmpFrom = fromKey.compareTo(x.key);;
+        tailMap(x.left, fromKey, tMap);
 
-        if (cmp > 0) {
-            tMap.put(x.key, x.val);
-            tailMap(x.right, fromKey, tMap);
-        }
+        if( cmpFrom <= 0) tMap.put(x.key, x.val);
+        tailMap(x.right, fromKey, tMap);
 
     }
 
@@ -113,7 +105,17 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
 
     @Override
     public Set<Entry<Key, Value>> entrySet() {
-        return null;
+        Set<Entry<Key, Value>> eSet = new HashSet<>();
+        entrySet(root, eSet);
+        return eSet;
+
+    }
+    private void entrySet(Node x, Set<Entry<Key, Value>> eSet) {
+        if (x == null) return;
+        entrySet(x.left, eSet);
+        //Не работал с интерфейсом Map.Entry, не совсем понимаю как искользовать его в данном случае
+  //      eSet.add(x.key, x.val);
+        entrySet(x.right, eSet);
     }
 
     private class Node {
@@ -205,8 +207,8 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
 
     @Override
     public void putAll(Map<? extends Key, ? extends Value> m) {
-    for(Map.Entry<? extends Key, ? extends Value> entry : m.entrySet())
-        put(entry.getKey(), entry.getValue());
+        for(Map.Entry<? extends Key, ? extends Value> entry : m.entrySet())
+            put(entry.getKey(), entry.getValue());
 
     }
 
