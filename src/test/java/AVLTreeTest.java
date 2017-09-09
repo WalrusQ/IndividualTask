@@ -50,6 +50,13 @@ public class AVLTreeTest {
 
         assertEquals((int)st.size(), 3);
 
+
+        Iterator<Integer> iter = st.keySet().iterator();
+        assertEquals((int)iter.next(), 11);
+        assertEquals((int)iter.next(), 15);
+        assertEquals((int)iter.next(), 16);
+
+
         assertTrue(st.keySet().contains(11));
         assertTrue(st.keySet().contains(15));
         assertTrue(st.keySet().contains(16));

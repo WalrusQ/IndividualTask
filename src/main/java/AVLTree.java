@@ -111,10 +111,36 @@ public class AVLTree<Key extends Comparable<Key>, Value> implements SortedMap<Ke
 
     }
     private void entrySet(Node x, Set<Entry<Key, Value>> eSet) {
+        Map.Entry < Key, Value > entry = new Map.Entry < Key, Value > ()
+        {
+            private Key key;
+            private Value val;
+
+
+            @Override
+            public Key getKey ()
+            {
+                return x.key;
+            }
+
+            @Override
+            public Value getValue ()
+            {
+                return x.val ;
+            }
+
+            @Override
+            public Value setValue ( Value value )
+            {   this.key = x.key;
+                this.val = value;
+                return val;
+            }
+
+        };
         if (x == null) return;
         entrySet(x.left, eSet);
-        //Не работал с интерфейсом Map.Entry, не совсем понимаю как искользовать его в данном случае
-  //      eSet.add(x.key, x.val);
+        entry.setValue(x.val);
+        eSet.add(entry);
         entrySet(x.right, eSet);
     }
 
